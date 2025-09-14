@@ -1,0 +1,23 @@
+.projects {
+  position: relative;
+  top: 100px;
+  height: 100vh;
+  width: 100vw;
+  max-width: 100%;
+  overflow-x: hidden;
+  background-size: cover;
+  background: #ffffff no-repeat center;
+
+  .heading {
+    margin-left: 150px;
+    margin-top: 150px;
+    h1 {
+      color: #151515;
+      font-size: 4rem;
+      font-weight: 400;
+    }
+    .highlight {
+      color: #f97316;
+    }
+  }
+}

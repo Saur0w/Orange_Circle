@@ -1,0 +1,57 @@
+.we {
+  height: 100vh;
+  width: 100vw;
+  max-width: 100%;
+  overflow: hidden;
+  background-color: #f1efe7;
+  .content {
+    margin-top: 100px;
+    margin-left: 100px;
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+    .head {
+      display: flex;
+      flex-direction: column;
+      .headLine {
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+        .line {
+          height: 80px;
+          width: 1.2px;
+          background-color: #000000;
+        }
+        h5 {
+          font-size: 0.8rem;
+          font-weight: 400;
+          margin-left: 15px;
+          color: #05002d;
+        }
+      }
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        .highlight {
+          color: #f97316;
+        }
+      }
+    }
+
+    .para {
+      margin-top: 100px;
+      margin-left: 150px;
+      margin-right: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      p {
+        font-size: 1.5rem;
+        color: #05002d;
+        line-height: 1.5;
+      }
+    }
+
+
+  }
+}

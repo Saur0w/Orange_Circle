@@ -21,15 +21,21 @@ export default function Projects() {
 
             try {
                 const res = await axios.get(url);
-                const [headers, ...rows] = res.data.values;
+                const [headers, ...rows] = res.data.values as string[][];
 
                 const data: Project[] = rows.map((row: string[]) =>
                     Object.fromEntries(headers.map((h: string, i: number) => [h, row[i] || ""]))
                 );
 
                 setProjects(data);
-            } catch (error: any) {
-                console.error("Error fetching data", error.response?.data || error.message);
+            } catch (error: unknown) {
+                if (axios.isAxiosError(error)) {
+                    console.error("Error fetching data", error.response?.data ?? error.message);
+                } else if (error instanceof Error) {
+                    console.error("Error fetching data", error.message);
+                } else {
+                    console.error("Error fetching data", String(error));
+                }
             }
         };
 
@@ -55,9 +61,7 @@ export default function Projects() {
                         <td>{proj["Project Name"]}</td>
                         <td>{proj["Location"]}</td>
                         <td>
-                                <span className={styles.statusBadge}>
-                                    {proj["Status"]}
-                                </span>
+                            <span className={styles.statusBadge}>{proj["Status"]}</span>
                         </td>
                         <td>{proj["Services"]}</td>
                         <td>{proj["Year"]}</td>

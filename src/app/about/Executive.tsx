@@ -1,9 +1,9 @@
 "use client";
+
 import styles from "./executive.module.scss";
 import Image from "next/image";
 import {JSX} from "react";
 
-// Interface for executive object
 interface Executive {
     id: number;
     name: string;

@@ -12,153 +12,149 @@ import { usePathname } from "next/navigation";
 
 gsap.registerPlugin(SplitText, Flip, ScrollTrigger);
 
+type SplitTextInstance = {
+    lines: HTMLElement[];
+    revert: () => void;
+};
+
 export default function About() {
     const sectionRef = useRef<HTMLElement>(null);
     const textRef = useRef<HTMLDivElement>(null);
     const imagesRef = useRef<HTMLDivElement>(null);
 
-    const floatingImages: string[] = [  // These will animate differently
-        'locomotive.png',
-        'officestudio.png',
-        'landing/main.jpg',
-    ];
-
     const pathname = usePathname();
 
-    useGSAP(() => {
-        if (pathname !== "/about") return;
-        if (!textRef.current || !imagesRef.current) return;
+    useGSAP(
+        () => {
+            if (pathname !== "/about") return;
+            if (!textRef.current || !imagesRef.current) return;
 
-        // Text animation
-        const elements = textRef.current.querySelectorAll("h1, h2, p");
-        const split = new SplitText(elements, {
-            type: "lines",
-            linesClass: styles.line,
-        });
+            // Split text into lines (use array, not NodeList)
+            const textElements = Array.from(
+                textRef.current.querySelectorAll("h1, h2, p")
+            );
+            const split = new SplitText(textElements, {
+                type: "lines",
+                linesClass: styles.line,
+            }) as unknown as SplitTextInstance;
 
-        // Create main timeline
-        const mainTl = gsap.timeline();
+            // Main timeline
+            const mainTl = gsap.timeline();
 
-        // Text animation
-        mainTl.from(split.lines, {
-            delay: 1.5,
-            y: 100,
-            opacity: 0,
-            duration: 1,
-            stagger: 0.1,
-            ease: "power4.out",
-        });
-
-        const images = imagesRef.current.querySelectorAll(`.${styles.img}`);
-        images.forEach((img) => img.classList.remove(styles.animateOut));
-
-        // Initial Flip animation
-        requestAnimationFrame(() => {
-            const state = Flip.getState(images);
-            images.forEach((img) => img.classList.add(styles.animateOut));
-
-            const flipAnimation = Flip.from(state, {
-                duration: 1.5,
-                ease: "power3.inOut",
-                stagger: 0.05,
+            // Text reveal
+            mainTl.from(split.lines, {
+                delay: 1.5,
+                y: 100,
+                opacity: 0,
+                duration: 1,
+                stagger: 0.1,
+                ease: "power4.out",
             });
 
-            // Add flip animation to timeline
-            mainTl.add(flipAnimation, 0);
+            // Collect image elements as an array
+            const images = Array.from(
+                imagesRef.current.querySelectorAll(`.${styles.img}`)
+            ) as HTMLElement[];
 
-            // After flip completes, animate first 3 cards horizontally
-            mainTl.call(() => {
-                const firstThreeCards = Array.from(images).slice(0, 3);
+            // Ensure classes start in the correct state
+            images.forEach((img) => img.classList.remove(styles.animateOut));
 
-                // Animate the first 3 cards to horizontal positions
-                gsap.to(firstThreeCards, {
-                    duration: 1.2,
-                    ease: "power3.out",
-                    stagger: {
-                        amount: 0.6,
-                        from: "start"
-                    },
-                    x: (index: number) => {
-                        // Calculate horizontal positions
-                        const spacing = 250; // Adjust spacing between cards
-                        const startX = -spacing; // Start position for first card
-                        return startX + (index * spacing);
-                    },
-                    y: (index: number) => {
-                        // Slight vertical offset for visual appeal
-                        return index * -10;
-                    },
-                    rotation: (index: number) => {
-                        // Slight rotation for card effect
-                        return (index - 1) * 5;
-                    },
-                    scale: 0.9, // Slightly smaller for card effect
-                    zIndex: (index: number) => 10 - index, // Ensure proper stacking
-                    transformOrigin: "center center",
+            // FLIP: capture, change, animate
+            requestAnimationFrame(() => {
+                const state = Flip.getState(images);
+                images.forEach((img) => img.classList.add(styles.animateOut));
+
+                const flipAnimation = Flip.from(state, {
+                    duration: 1.5,
+                    ease: "power3.inOut",
+                    stagger: 0.05,
                 });
 
-                // Optional: Add floating animation to the horizontally arranged cards
-                gsap.to(firstThreeCards, {
-                    duration: 2,
-                    delay: 0.8,
-                    y: "+=15",
-                    ease: "power2.inOut",
-                    yoyo: true,
-                    repeat: -1,
-                    stagger: {
-                        amount: 0.1,
-                        from: "start"
-                    }
-                });
+                // Add flip to the main timeline
+                mainTl.add(flipAnimation, 0);
 
-                // Keep remaining cards in stack with subtle movement
-                const remainingCards = Array.from(images).slice(3);
-                gsap.to(remainingCards, {
-                    duration: 0.8,
-                    delay: 0.4,
-                    y: "-=20",
-                    ease: "power2.out",
-                    stagger: 0.02
-                });
+                // After FLIP, arrange first three as cards
+                mainTl.add(() => {
+                    const firstThreeCards = images.slice(0, 3);
 
-            }, null, "+=0.02"); // Start 0.5s after flip completes
-        });
+                    gsap.to(firstThreeCards, {
+                        duration: 1.2,
+                        ease: "power3.out",
+                        stagger: { amount: 0.6, from: "start" },
+                        x: (index: number) => {
+                            const spacing = 250;
+                            const startX = -spacing;
+                            return startX + index * spacing;
+                        },
+                        y: (index: number) => index * -10,
+                        rotation: (index: number) => (index - 1) * 5,
+                        scale: 0.9,
+                        zIndex: (index: number) => 10 - index,
+                        transformOrigin: "center center",
+                    });
 
-    }, {
-        scope: sectionRef,
-        dependencies: [pathname]
-    });
+                    // Floating motion on the first three
+                    gsap.to(firstThreeCards, {
+                        duration: 2,
+                        delay: 0.8,
+                        y: "+=15",
+                        ease: "power2.inOut",
+                        yoyo: true,
+                        repeat: -1,
+                        stagger: { amount: 0.1, from: "start" },
+                    });
+
+                    // Subtle motion for the remaining stack
+                    const remainingCards = images.slice(3);
+                    gsap.to(remainingCards, {
+                        duration: 0.8,
+                        delay: 0.4,
+                        y: "-=20",
+                        ease: "power2.out",
+                        stagger: 0.02,
+                    });
+                }, "+=0.02");
+            });
+        },
+        { scope: sectionRef, dependencies: [pathname] }
+    );
+
+    const imageList: string[] = [
+        "c2.jpg",
+        "google.jpg",
+        "funny.jpg",
+        "decimal.jpg",
+        "locomotive.png",
+        "powell.jpg",
+        "sustainability.jpg",
+        "maven.jpg",
+        "landing/sky.jpg",
+        "landing/main.jpg",
+        "landing/maintenance.jpg",
+        "panda.jpg",
+        "maven.jpg",
+        "officestudio.png",
+        "wix.jpg",
+    ];
 
     return (
         <section className={styles.about} ref={sectionRef}>
             <div className={styles.imagesContainer} ref={imagesRef}>
-                {[
-                    'c2.jpg',
-                    'google.jpg',
-                    'funny.jpg',
-                    'decimal.jpg',
-                    'locomotive.png',
-                    'powell.jpg',
-                    'sustainability.jpg',
-                    'maven.jpg',
-                    'landing/sky.jpg',
-                    'landing/main.jpg',
-                    'landing/maintenance.jpg',
-                    'panda.jpg',
-                    'maven.jpg',
-                    'officestudio.png',
-                    'wix.jpg'
-                ].map((src: string, index: number) => (
-                    <div key={`${src}-${index}`} className={`${styles.img} img-${index}`}>
-                        <Image
-                            src={`/images/${src}`}
-                            alt={src.split('/').pop()?.split('.')[0] || ''}
-                            width={500}
-                            height={300}
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                        />
-                    </div>
-                ))}
+                {imageList.map((src: string, index: number) => {
+                    const file = src.split("/").pop() ?? "";
+                    const altText = file.replace(/\.[^/.]+$/, "");
+                    return (
+                        <div key={`${src}-${index}`} className={`${styles.img} img-${index}`}>
+                            <Image
+                                src={`/images/${src}`}
+                                alt={altText}
+                                width={500}
+                                height={300}
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                        </div>
+                    );
+                })}
             </div>
 
             <div className={styles.text} ref={textRef}>

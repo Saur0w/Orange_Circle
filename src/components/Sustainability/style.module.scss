@@ -1,23 +1,33 @@
 .sus {
   position: relative;
-  width: 100vw;
+  width: 100%; /* avoid 100vw to prevent horizontal scrollbar */
   max-width: 100%;
+  /* responsive min-height with mobile-safe viewport units */
+  min-height: clamp(420px, 60svh, 900px);
+  /* keep auto growth for longer copy */
   height: auto;
+
   background-image: url('/images/balloons.jpg');
-  background-size: cover;
-  background-position: center;
+  background-size: cover; /* fill container while preserving aspect ratio */
+  background-position: center; /* center focal point */
   background-repeat: no-repeat;
+
   display: flex;
   align-items: center;
   justify-content: flex-start;
   color: white;
-  padding: 4rem 4rem 100px;
-  overflow: hidden;
+
+  /* fluid, bounded padding: top x sides x bottom */
+  padding: clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 4rem) clamp(4rem, 10vw, 7rem);
+
+  /* clip overflow without producing scrollbars */
+  overflow: clip;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
+    /* readable overlay; diagonal fade to show background art */
     background: linear-gradient(65deg, rgba(0, 0, 0, 0.6) 15%, rgba(10, 10, 10, 0) 70%);
     z-index: 0;
   }
@@ -25,27 +35,32 @@
   .content {
     position: relative;
     z-index: 1;
-    max-width: 700px;
+    width: min(90%, 700px);
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: clamp(1rem, 2.5vw, 2rem);
 
     h5 {
-      font-size: 1.2rem;
+      font-size: clamp(0.95rem, 0.7vw + 0.6rem, 1.1rem);
       font-weight: 400;
       margin-left: 15px;
+      margin-bottom: 0.25rem;
     }
 
     .line {
       background-color: #f1f0f0;
-      height: 70px;
+      height: clamp(48px, 8vh, 70px);
       width: 2px;
       margin-left: 15px;
+      margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: clamp(1.6rem, 2.4vw + 0.8rem, 2.8rem);
       font-weight: 600;
+      line-height: 1.2;
+      max-width: 30ch;
+      text-wrap: balance;
 
       .highlight {
         color: #f97316;
@@ -53,34 +68,66 @@
     }
 
     p {
-      font-size: 1.1rem;
+      font-size: clamp(1rem, 0.6vw + 0.8rem, 1.15rem);
       font-weight: 300;
       line-height: 1.6;
       color: #f8f8f8;
+      max-width: 65ch;
+      margin: 0;
+      text-wrap: pretty;
+    }
+
+    /* If you switch to styling Link as a button, use .cta */
+    .cta,
+    button {
+      display: inline-block;
+      background-color: #ffffff;
+      color: #555555;
+      border: none;
+      padding: clamp(0.65rem, 1.2vw, 0.9rem) clamp(1.2rem, 2.8vw, 1.8rem);
+      font-size: clamp(0.95rem, 0.4vw + 0.8rem, 1rem);
+      font-weight: 500;
+      border-radius: 9999px;
+      cursor: pointer;
+      text-decoration: none;
+      line-height: 1;
+      transition: background-color 160ms ease, color 160ms ease;
+
+      &:hover {
+        background-color: #f97316;
+        color: #ffffff;
+      }
     }
 
     .button {
-      margin-top: 2rem;
+      margin-top: clamp(1rem, 2.5vw, 2rem);
+    }
+  }
 
-      button {
-        background-color: #ffffff;
-        color: #555555;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-        font-weight: 500;
-        border-radius: 9999px;
-        cursor: pointer;
-        transition: background 0.3s ease;
+  /* Tablet */
+  @media (max-width: 1024px) {
+    /* slightly stronger overlay for readability on smaller screens */
+    &::before {
+      background: linear-gradient(65deg, rgba(0, 0, 0, 0.68) 20%, rgba(10, 10, 10, 0) 70%);
+    }
+  }
 
-        &:hover {
-          background-color: #f97316;
-          color: white;
-        }
+  /* Mobile */
+  @media (max-width: 768px) {
+    /* maintain visual contrast on mobile */
+    &::before {
+      background: linear-gradient(60deg, rgba(0, 0, 0, 0.72) 25%, rgba(10, 10, 10, 0) 70%);
+    }
+
+    .content {
+      width: 100%;
+
+      h1 {
+        max-width: 32ch;
       }
 
-      a {
-        text-decoration: none;
+      p {
+        max-width: 70ch;
       }
     }
   }

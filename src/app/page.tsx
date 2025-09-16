@@ -12,7 +12,7 @@ import Founders from '@/components/Origin/index';
 import Stats from "@/components/Stats/index";
 import Join from "@/components/Join/index";
 
-// Interface for locomotive scroll options
+
 
 
 export default function Home(): JSX.Element {

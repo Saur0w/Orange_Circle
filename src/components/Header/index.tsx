@@ -1,4 +1,5 @@
 "use client";
+
 import styles from "./style.module.scss";
 import Link from "next/link";
 import { useEffect, useRef, useState, useCallback } from "react";

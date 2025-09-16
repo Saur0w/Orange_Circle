@@ -1,83 +1,219 @@
 .origin {
   height: auto;
-  width: 100vw;
+  width: 100%; /* avoid 100vw to prevent horizontal scrollbar */
   max-width: 100%;
-  overflow: hidden;
   background-color: #f7f5f2;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
-  padding-bottom: 100px;
-  .content {
-    margin-top: 100px;
-    margin-left: 100px;
-    margin-right: 100px;
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-    .heading {
-      h1 {
-        font-size: 3rem;
-        font-weight: 600;
-        line-height: 1.2;
-        white-space: pre-line;
-        color: #05002d;
-      }
-    }
-    .profile {
-      display: flex;
-      flex-direction: column;
-      gap: 200px;
-      .profileInfo {
-        display: flex;
-        flex-direction: row;
-        gap: 100px;
-        .imageContainer {
-          display: flex;
-          flex-direction: row;
-          gap: 2rem;
-          .imageInfo {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+  gap: clamp(2rem, 4vw, 3rem);
+  /* top / sides / bottom spacing scales fluidly */
+  padding: clamp(4rem, 8vw, 7rem) 0 clamp(6rem, 10vw, 9rem);
+  overflow: clip; /* cleaner than hidden for clipping without side scrollbars */
+}
 
-            .imageWrapper {
-              position: relative;
-              overflow: hidden;
+.origin .content {
+  /* centered, fluid container with a comfortable max width */
+  width: min(92%, 1200px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 4vw, 3rem);
+}
 
-              img {
-                display: block;
-                clip-path: inset(0 0 100% 0);
-                will-change: clip-path;
-                height: 450px;
-                width: 400px;
-              }
-            }
-            p {
-              font-size: 1.2rem;
-              font-weight: 400;
-              color: #000000;
-            }
-          }
+.origin .heading h1 {
+  font-size: clamp(2rem, 2.5vw + 1rem, 3.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: #05002d;
+  text-wrap: balance;
+  max-width: 32ch; /* readable line length */
+}
 
-          .links {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            a {
-              text-decoration: none;
-              color: #0a0a0a;
-            }
-          }
-        }
-        p {
-          font-size: 1.2rem;
-          font-weight: 400;
-          line-height: 1.5;
-          color: #151515;
-        }
-      }
+/* Profiles list */
+.origin .profile {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 12vw, 12rem);
+}
 
-    }
+/* Each profile row: image/info + bio */
+.origin .profileInfo {
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) 1fr;
+  column-gap: clamp(1.25rem, 5vw, 6rem);
+  row-gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+}
+
+/* Left block: image + name/title + links */
+.origin .imageContainer {
+  display: flex;
+  flex-direction: row;
+  gap: clamp(0.75rem, 2vw, 2rem);
+}
+
+/* Image info stack */
+.origin .imageInfo {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+/* Responsive image box with preserved ratio */
+.origin .imageWrapper {
+  position: relative;
+  overflow: hidden;
+  inline-size: clamp(240px, 26vw, 400px);
+  aspect-ratio: 4 / 5;
+}
+
+/* Ensure Next.js <Image> fits the wrapper and animates */
+.origin .imageWrapper img,
+.origin .reveal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  clip-path: inset(0 0 100% 0);
+  will-change: clip-path;
+}
+
+/* Name / title */
+.origin .imageInfo p {
+  font-size: clamp(1rem, 0.4vw + 0.9rem, 1.2rem);
+  font-weight: 400;
+  color: #000000;
+  margin: 0;
+}
+
+/* Social / external links */
+.origin .links {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1.2vw, 1rem);
+  align-self: flex-start;
+}
+
+.origin .links a {
+  text-decoration: none;
+  color: #0a0a0a;
+  font-size: clamp(0.95rem, 0.4vw + 0.85rem, 1.05rem);
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #f97316;
+  }
+}
+
+/* Bio copy (right column) */
+.origin .profileInfo > p {
+  font-size: clamp(1rem, 0.6vw + 0.9rem, 1.2rem);
+  font-weight: 400;
+  line-height: 1.7;
+  color: #151515;
+  margin: 0;
+  max-width: 75ch; /* readable line length on desktop */
+  text-wrap: pretty;
+}
+
+/* ---------- Tablets / Small desktops ---------- */
+@media (max-width: 1024px) {
+  .origin .content {
+    width: min(94%, 1000px);
+  }
+
+  .origin .profileInfo {
+    grid-template-columns: 1fr; /* stack image section above bio */
+  }
+
+  .origin .imageContainer {
+    flex-wrap: wrap; /* allow links to flow under name/title */
+  }
+
+  .origin .profileInfo > p {
+    max-width: 80ch;
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 768px) {
+  .origin .heading h1 {
+    font-size: clamp(1.75rem, 5vw + 0.75rem, 2.4rem);
+    max-width: 30ch;
+  }
+
+  .origin .imageWrapper {
+    inline-size: clamp(220px, 60vw, 340px);
+  }
+
+  .origin .links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .origin .profileInfo > p {
+    max-width: 85ch;
+  }
+}
+
+/* ---------- Small mobile tweaks ---------- */
+@media (max-width: 480px) {
+  .origin .content {
+    width: 92%;
+  }
+
+  .origin .imageWrapper {
+    inline-size: 100%;
+    /* keep portrait ratio; change to 1/1 if square thumbs are preferred */
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* ---------- XL: 1600–1919px ---------- */
+@media (min-width: 1600px) {
+  .origin .content {
+    width: min(88%, 1680px);
+  }
+
+  .origin .heading h1 {
+    font-size: clamp(2.2rem, 1.8vw + 1rem, 3.75rem);
+    max-width: 34ch;
+  }
+
+  .origin .imageWrapper {
+    inline-size: clamp(360px, 22vw, 480px);
+  }
+
+  .origin .profileInfo {
+    column-gap: clamp(2rem, 4vw, 7rem);
+  }
+
+  .origin .profile {
+    gap: clamp(4rem, 12vw, 14rem);
+  }
+
+  .origin .profileInfo > p {
+    max-width: 85ch;
+  }
+}
+
+/* ---------- XXL: 1920px+ ---------- */
+@media (min-width: 1920px) {
+  .origin .content {
+    width: min(86%, 1760px);
+  }
+
+  .origin .heading h1 {
+    font-size: clamp(2.4rem, 2vw + 1rem, 4.25rem);
+    max-width: 36ch;
+  }
+
+  .origin .imageWrapper {
+    inline-size: clamp(420px, 22vw, 520px);
+  }
+
+  .origin .links a {
+    font-size: clamp(1rem, 0.3vw + 0.95rem, 1.15rem);
   }
 }
